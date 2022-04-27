@@ -24,14 +24,14 @@ async function run() {
         const volunteerCollection = client.db('volunteerNetwork').collection('volunteer');
         console.log('Database connected');
 
-        // get all users
+        // get all services
         app.get('/services', async(req, res) => {
             const cursor = serviceCollection.find({});
             const result = await cursor.toArray();
             res.send(result);
         })
 
-        // post a user
+        // post a service
         app.post('/service', async(req, res) => {
             const user = req.body;
             const result = await serviceCollection.insertOne(user);
@@ -44,10 +44,18 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
+        // post a volunteer
         app.post('/volunteer', async(req, res) => {
             const volunteer = req.body;
-            const result = await volunteerCollection.insertOne(volunteer);
-            res.send(result);
+            const findIfExist = await volunteerCollection.findOne({email : volunteer.email})
+            console.log(findIfExist);
+            if(findIfExist) {
+                res.send({message: 'user already exists'})
+            }
+            else {
+                const result = await volunteerCollection.insertOne(volunteer);
+                res.send(result);
+            }
         })
 
         // get services by volunteer
